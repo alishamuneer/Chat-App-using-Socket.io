@@ -6,6 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
+import axios from 'axios'
 
 const App = ({ socket, name, room }) => {
 
@@ -14,12 +15,9 @@ const App = ({ socket, name, room }) => {
     const [chosenEmoji, setChosenEmoji] = useState('');
     const [showEmoji, setShowEmoji] = useState(false);
 
-    const inputHandler = (e) => {
-        setMessage(e.target.value)
-    }
-
     //Send message to other user
     const sendMsg = async () => {
+
         if (message === '') {
             toast.error('Invalid Input', {
                 position: toast.POSITION.BOTTOM_CENTER
@@ -28,11 +26,19 @@ const App = ({ socket, name, room }) => {
         else {
             const data = {
                 message,
-                name,
+                senderName : name,
                 room,
-                date: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
+                time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
             }
             await socket.emit('send_message', data)
+            axios.post(`http://localhost:3001/api/chatDetails`, data)
+            .then(res => {
+                console.log(res)
+                // setChat(res.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
             setChat(chat => [...chat, data])
             setMessage('')
         }
@@ -75,6 +81,18 @@ const App = ({ socket, name, room }) => {
         setMessage(message + chosenEmoji)
     }, [chosenEmoji])
 
+    useEffect(() => {
+        //get previos messages
+        axios.get(`http://localhost:3001/api/${room}/chatDetails`)
+            .then(res => {
+                console.log(res)
+                setChat(res.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }, [])
+
 
     return (
         <React.Fragment>
@@ -85,16 +103,16 @@ const App = ({ socket, name, room }) => {
                         {chat.map((chatContent, i) => {
                             return (
                                 <div key={i} className="p-[10px] pl-[10px]">
-                                    <div className={`${name === chatContent.name ? 'text-end' : 'text-start'}`}>
+                                    <div className={`${name === chatContent.senderName ? 'text-end' : 'text-start'}`}>
                                         <div className="space-y-2 text-xs mx-2 order-2">
                                             <div>
-                                                <span className={`px-4 py-2 text-[18px] rounded-lg inline-block rounded-bl-none ${name === chatContent.name ? 'bg-[#1a53f3] text-white' : 'bg-[#ccc] text-black'} `}>{chatContent.message}</span>
+                                                <span className={`px-4 py-2 text-[18px] rounded-lg inline-block rounded-bl-none ${name === chatContent.senderName ? 'bg-[#1a53f3] text-white' : 'bg-[#ccc] text-black'} `}>{chatContent.message}</span>
                                             </div>
                                         </div>
 
                                         <div className="text-[10px]">
-                                            <span className='mr-[5px]'>{chatContent.date}</span>
-                                            <span className='mr-[10px] font-bold'>{capitalizeFirst(chatContent.name)}</span>
+                                            <span className='mr-[5px]'>{chatContent.time}</span>
+                                            <span className='mr-[10px] font-bold'>{capitalizeFirst(chatContent.senderName)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -107,7 +125,7 @@ const App = ({ socket, name, room }) => {
                         <input name='message' type='text'
                             value={message}
                             placeholder='Type...'
-                            onChange={inputHandler}
+                            onChange={(e) => { setMessage(e.target.value) }}
                             className='border border-black border-none focus:outline-none w-[42vh] ml-1'
                             onKeyPress={(e) => { e.key === "Enter" && sendMsg() }}
                         />

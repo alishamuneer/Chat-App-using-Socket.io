@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react'
 import App from './App';
 import { useFormik } from "formik";
 import * as yup from 'yup';
+import io from "socket.io-client";
 
+let socket;
 
-
-const Home = ({socket}) => {
+const Home = () => {
 
     const [showApp, setShowApp] = useState(false)
 
@@ -32,6 +33,11 @@ const Home = ({socket}) => {
 
         })
     })
+
+    //client connection
+    useEffect(()=>{
+      socket =  io.connect("http://localhost:3001")
+    },[])
 
     return (
         <React.Fragment>
