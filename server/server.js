@@ -4,7 +4,7 @@ const http = require("http");
 const cors = require("cors");
 const mongoose = require('mongoose');
 const { Server } = require("socket.io");
-const chatDetails = require('./routes/FriendsChatDetails')
+const chatDetails = require('./routes/chatDetails')
 
 app.use(cors());
 app.use(express.json());
