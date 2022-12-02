@@ -8,7 +8,7 @@ const chatDetails = require('./routes/chatDetails')
 
 app.use(cors());
 app.use(express.json());
-app.use('/api',chatDetails)
+app.use('/api/chatDetails',chatDetails)
 
 const server = http.createServer(app);
 

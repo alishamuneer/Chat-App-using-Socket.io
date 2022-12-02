@@ -9,6 +9,9 @@ let socket;
 const Home = () => {
 
     const [showApp, setShowApp] = useState(false)
+    const [name, setName] = useState(false)
+    const [room, setRoom] = useState(false)
+    
 
     const { values, handleChange, handleSubmit, handleBlur, errors, touched } = useFormik({
         initialValues: {
@@ -16,10 +19,12 @@ const Home = () => {
             room: "",
         },
         // submit handler
-        onSubmit: (values) => {
-
+        onSubmit: (values, actions) => {
             socket.emit('join_room', values.room)
-            setShowApp(true)
+            actions.resetForm();
+            setName(values.name);
+            setRoom(values.room);
+            setShowApp(true);
         },
 
         validationSchema: yup.object({
@@ -48,7 +53,7 @@ const Home = () => {
                             <div className="relative sm:max-w-sm w-full">
                                 <div className="card bg-blue-400 shadow-lg  w-full h-full rounded-3xl absolute  transform -rotate-6"></div>
                                 <div className="card bg-[#6e2fc1] shadow-lg  w-full h-full rounded-3xl absolute  transform rotate-6"></div>
-                                <div className="relative w-full rounded-3xl  px-6 py-4 bg-gray-100 shadow-md">
+                                <div className="relative w-full rounded-3xl  px-6 py-4 bg-gray-100 shadow-[0_0_2px_2px_rgb(0_0_0_/_0.1)]">
                                     <h1 className="block mt-3 text-gray-700 text-center font-semibold text-[25px]">
                                         Join Room
                                     </h1>
@@ -60,6 +65,7 @@ const Home = () => {
                                                 ${touched.name && errors.name ? "bg-red-200" : 'focus:bg-blue-100'}`}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
+                                            value={values.name}
                                         />
 
                                         {touched.name && errors.name ? <p className='text-[13px] text-red-600 pb-[5px] ml-[15px]'>{errors.name}</p> : <div className='p-[12px]'></div>}
@@ -71,6 +77,7 @@ const Home = () => {
                                                 ${touched.room && errors.room ? "bg-red-200" : 'focus:bg-blue-100'}`}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
+                                                value={values.room}
                                             >
                                                 <option className='text-black' hidden >Select Room</option>
                                                 <option className='text-black' value="Friends">Friends</option>
@@ -100,7 +107,7 @@ const Home = () => {
 
                 :
 
-                (<App socket={socket} room={values.room} name={values.name} />)
+                (<App socket={socket} room={room} name={name} setShowApp={setShowApp} />)
 
             }
            

@@ -17,36 +17,9 @@ const postChatDetails = async (req, res) => {
     }
 }
 
-const getFirendsChatDetails = async (req, res) => {
+const getChatDetails = async (req, res) => {
     try {
-        const details = await ChatDetail.find({room : 'Friends'});
-        res.status(201).send(details);
-    } catch (error) {
-        res.status(400).send(error.message);
-    }
-}
-
-const getFamilyChatDetails = async (req, res) => {
-    try {
-        const details = await ChatDetail.find({room : 'Family'});
-        res.status(201).send(details);
-    } catch (error) {
-        res.status(400).send(error.message);
-    }
-}
-
-const getColleaguesChatDetails = async (req, res) => {
-    try {
-        const details = await ChatDetail.find({room : 'Colleagues'});
-        res.status(201).send(details);
-    } catch (error) {
-        res.status(400).send(error.message);
-    }
-}
-
-const getCousinsChatDetails = async (req, res) => {
-    try {
-        const details = await ChatDetail.find({room : 'Cousins'});
+        const details = await ChatDetail.find({room : req.params.room});
         res.status(201).send(details);
     } catch (error) {
         res.status(400).send(error.message);
@@ -55,8 +28,5 @@ const getCousinsChatDetails = async (req, res) => {
 
 module.exports = { 
     postChatDetails, 
-    getFirendsChatDetails, 
-    getFamilyChatDetails , 
-    getColleaguesChatDetails , 
-    getCousinsChatDetails
+    getChatDetails, 
 }

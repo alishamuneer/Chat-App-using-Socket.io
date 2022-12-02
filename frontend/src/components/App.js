@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import ScrollToBottom from "react-scroll-to-bottom";
 import { HiPaperAirplane } from "react-icons/hi2";
-import { BsEmojiLaughing } from "react-icons/bs";
+import { BsEmojiLaughing, BsArrowLeft } from "react-icons/bs";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import axios from 'axios'
 
-const App = ({ socket, name, room }) => {
+const App = ({ socket, name, room, setShowApp }) => {
 
     const [message, setMessage] = useState('')
     const [chat, setChat] = useState([])
@@ -26,19 +26,19 @@ const App = ({ socket, name, room }) => {
         else {
             const data = {
                 message,
-                senderName : name,
+                senderName: name,
                 room,
                 time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
             }
             await socket.emit('send_message', data)
             axios.post(`http://localhost:3001/api/chatDetails`, data)
-            .then(res => {
-                console.log(res)
-                // setChat(res.data)
-            })
-            .catch(err => {
-                console.log(err)
-            })
+                .then(res => {
+                    console.log(res)
+                    // setChat(res.data)
+                })
+                .catch(err => {
+                    console.log(err)
+                })
             setChat(chat => [...chat, data])
             setMessage('')
         }
@@ -83,7 +83,7 @@ const App = ({ socket, name, room }) => {
 
     useEffect(() => {
         //get previos messages
-        axios.get(`http://localhost:3001/api/${room}/chatDetails`)
+        axios.get(`http://localhost:3001/api/chatDetails/${room}`)
             .then(res => {
                 console.log(res)
                 setChat(res.data)
@@ -93,12 +93,16 @@ const App = ({ socket, name, room }) => {
             })
     }, [])
 
-
+console.log(room)
     return (
         <React.Fragment>
             <div className='flex justify-center items-center flex-col w-full h-[100vh] bg-[whitesmoke]'>
                 <div className='shadow-xl'>
-                    <h1 className='bg-[url("./images/bg.jpg")] border-t border-x w-[50vh] border-[#e1e1e1] text-white p-[10px] text-center text-[21px] font-bold'>{room} Room</h1>
+
+                    <div className=' flex bg-[url("./images/bg.jpg")] border-t border-x w-[50vh] border-[#e1e1e1] text-white p-[10px] text-center text-[21px] font-bold'>
+                        <button onClick={()=>{setShowApp(false)}}><BsArrowLeft/></button>
+                        <h1 className='ml-[100px]'>{room} Room</h1>
+                    </div>
                     <ScrollToBottom className='bg-[url("./images/chat-bg.jpg")] bg-opacity-50 w-[50vh] h-[60vh] border shadow-inner bg-[#f9f9f9] border-[#e1e1e1]'>
                         {chat.map((chatContent, i) => {
                             return (
@@ -106,11 +110,11 @@ const App = ({ socket, name, room }) => {
                                     <div className={`${name === chatContent.senderName ? 'text-end' : 'text-start'}`}>
                                         <div className="space-y-2 text-xs mx-2 order-2">
                                             <div>
-                                                <span className={`px-4 py-2 text-[18px] rounded-lg inline-block rounded-bl-none ${name === chatContent.senderName ? 'bg-[#1a53f3] text-white' : 'bg-[#ccc] text-black'} `}>{chatContent.message}</span>
+                                                <span className={`px-4 py-2 text-[15px] rounded-lg inline-block rounded-bl-none ${name === chatContent.senderName ? 'bg-[#1a53f3] text-white' : 'bg-[#ccc] text-black'} `}>{chatContent.message}</span>
                                             </div>
                                         </div>
 
-                                        <div className="text-[10px]">
+                                        <div className="text-[10px] ml-[9px]">
                                             <span className='mr-[5px]'>{chatContent.time}</span>
                                             <span className='mr-[10px] font-bold'>{capitalizeFirst(chatContent.senderName)}</span>
                                         </div>
